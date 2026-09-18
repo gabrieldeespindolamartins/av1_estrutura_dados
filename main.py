@@ -1,15 +1,33 @@
-notas_alunos = 
-
-while > 0:
-
-"""Sistema de Gerenciamento de Notas"""
-print("Bem-Vindo ao Sistema de Gerenciamento de Notas")
-print("1. -----Cadastrar Aluno-----")
-print("2. -----Listar Todos os Alunos-----")
-print("3. -----Buscar Aluno-----")
-print("4. -----Sair do Sistema-----")
-
-
-opcao = input("Escolha uma opção: ")
-
-print("olá")
+#Exibe o titulo do programa
+print("\n==============================================")
+print("Bem-vindo ao sistema de gerenciamento de notas")
+print("==============================================\n")
+encerrar = False
+while not encerrar:
+    # Exibe as opções do programa
+    print("0 - Finalizar programa")
+    print("\n====================")
+    # Solicita a opcao do usuario
+    print("Selecione uma opcao: ")
+    print("====================\n")
+    try:
+        opcao = int(input(""))
+        # Verifica se a opcao do usuario é um numero inteiro valido
+    except ValueError:
+        print("=================================================")
+        print("Erro de leitura: Digite um numero inteiro valido")
+        print("=================================================")
+        continue
+    #Caso o usuario escolha a opcao 0, o programa finaliza
+    if opcao == 0:
+        
+        print("\n=========================")
+        print("Finalizando o programa...")
+        print("=========================")
+        encerrar = True
+        break
+    #Caso o usuario escolha uma opcao invalida, o programa exibe uma mensagem de erro
+    else:
+        print("==============")
+        print("Opcao invalida")
+        print("==============")
