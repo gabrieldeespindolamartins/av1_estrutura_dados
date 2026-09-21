@@ -94,6 +94,29 @@ def exibir_listagem(alunos, av1, av2, av3):
     print(f"Total de alunos cadastrados: {len(alunos)}\n")
 
 
+# Função: calcular_media_turma
+# Percorre os vetores de notas de forma iterativa (laço for) para calcular a
+# média de cada aluno e, a partir delas, a média geral da turma.
+# av1: Lista com as notas da Avaliação 1.
+# av2: Lista com as notas da Avaliação 2.
+# av3: Lista com as notas da Avaliação 3.
+# Retorna: a média geral da turma (float). Não faz print, apenas retorna o
+# valor, para que a função possa ser reaproveitada em outras partes do sistema.
+def calcular_media_turma(av1, av2, av3):
+    # Variável acumuladora que soma a média de cada aluno a cada volta do laço
+    soma_medias = 0
+
+    # Laço for que percorre os vetores do índice 0 até o total de alunos cadastrados
+    for i in range(len(av1)):
+        # Calcula a média do aluno somando as três notas e dividindo por 3
+        media_aluno = (av1[i] + av2[i] + av3[i]) / 3
+        soma_medias += media_aluno
+
+    # Calcula a média geral da turma dividindo a soma das médias pela quantidade de alunos
+    media_turma = soma_medias / len(av1)
+    return media_turma
+
+
 # ==============================================================================
 # MENU PRINCIPAL
 # ==============================================================================
@@ -104,6 +127,7 @@ while not encerrar:
     # Exibe as opções do programa
     print("1 - Cadastrar alunos e notas")
     print("2 - Exibir listagem geral de alunos e notas")
+    print("3 - Calcular e exibir a média geral da turma")
     print("0 - Finalizar programa")
     print("\n====================")
     # Solicita a opcao do usuario
@@ -125,6 +149,15 @@ while not encerrar:
     # Caso o usuario escolha a opcao 2, o programa chama a função de listagem
     elif opcao == 2:
         exibir_listagem(alunos, av1, av2, av3)
+
+    # Caso o usuario escolha a opcao 3, o programa calcula e exibe a média geral da turma
+    elif opcao == 3:
+        # VALIDAÇÃO: Verifica se existem alunos cadastrados antes de calcular, evitando divisão por zero
+        if len(alunos) == 0:
+            print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
+        else:
+            media_turma = calcular_media_turma(av1, av2, av3)
+            print(f"\nMédia geral da turma: {media_turma:.2f}\n")
 
     # Caso o usuario escolha a opcao 0, o programa finaliza
     elif opcao == 0:
