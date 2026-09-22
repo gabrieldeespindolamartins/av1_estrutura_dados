@@ -16,6 +16,23 @@ av3 = []
 # FUNÇÕES DO SISTEMA
 # ==============================================================================
 
+# Função: ler_nota
+# Lê uma nota do teclado. Aceita apenas números (float) entre 0 e 10.
+# Rejeita texto/string e valores fora do intervalo.
+def ler_nota(mensagem):
+    while True:
+        print(mensagem)
+        print("--------------------------")
+        try:
+            nota = float(input(""))
+            if 0.0 <= nota <= 10.0:
+                return nota
+            else:
+                print("\nInsira uma nota valida (entre 0 e 10)\n")
+        except ValueError:
+            print("\nInsira uma nota valida (entre 0 e 10)\n")
+
+
 # Início da função responsável por todo o processo de cadastro de um aluno
 def cadastrar_aluno():
     while True:
@@ -34,33 +51,10 @@ def cadastrar_aluno():
             print("Insira um nome valido")
             print("======================")
 
-    # Pede as tres notas e guarda apenas numeros
-    while True:
-        print("\nInsira a nota da av1: \n")
-        print("--------------------------")
-        try:
-            nota_av1 = float(input(""))
-            break
-        except ValueError:
-            print("\nInsira uma nota valida\n")
-
-    while True:
-        print("\nInsira a nota da av2: \n")
-        print("--------------------------")
-        try:
-            nota_av2 = float(input(""))
-            break
-        except ValueError:
-            print("\nInsira uma nota valida\n")
-
-    while True:
-        print("\nInsira a nota da av3: \n")
-        print("--------------------------")
-        try:
-            nota_av3 = float(input(""))
-            break
-        except ValueError:
-            print("\nInsira uma nota valida\n")
+    # Pede as tres notas e guarda apenas numeros entre 0 e 10
+    nota_av1 = ler_nota("\nInsira a nota da av1: \n")
+    nota_av2 = ler_nota("\nInsira a nota da av2: \n")
+    nota_av3 = ler_nota("\nInsira a nota da av3: \n")
 
     # Guarda as informações nas listas globais
     alunos.append(nome)
@@ -117,6 +111,48 @@ def calcular_media_turma(av1, av2, av3):
     return media_turma
 
 
+# Função: identificar_extremos
+# Percorre de forma iterativa (laço for) todas as notas (AV1, AV2 e AV3) e
+# identifica a maior e a menor nota, junto com o índice do aluno de cada uma.
+# Em caso de empate, mantém o primeiro aluno encontrado (> e < estritos).
+# av1, av2, av3: Listas com as notas.
+# Retorna: maior, menor, indice_maior, indice_menor.
+def identificar_extremos(av1, av2, av3):
+    # Inicializa com a primeira nota cadastrada (não usar 0 ou 10)
+    maior = av1[0]
+    menor = av1[0]
+    indice_maior = 0
+    indice_menor = 0
+
+    # Laço for: percorre do índice 0 até o total de alunos cadastrados
+    for i in range(len(av1)):
+        # AV1
+        if av1[i] > maior:
+            maior = av1[i]
+            indice_maior = i
+        if av1[i] < menor:
+            menor = av1[i]
+            indice_menor = i
+
+        # AV2
+        if av2[i] > maior:
+            maior = av2[i]
+            indice_maior = i
+        if av2[i] < menor:
+            menor = av2[i]
+            indice_menor = i
+
+        # AV3
+        if av3[i] > maior:
+            maior = av3[i]
+            indice_maior = i
+        if av3[i] < menor:
+            menor = av3[i]
+            indice_menor = i
+
+    return maior, menor, indice_maior, indice_menor
+
+
 # ==============================================================================
 # MENU PRINCIPAL
 # ==============================================================================
@@ -128,6 +164,7 @@ while not encerrar:
     print("1 - Cadastrar alunos e notas")
     print("2 - Exibir listagem geral de alunos e notas")
     print("3 - Calcular e exibir a média geral da turma")
+    print("4 - Identificar a maior e a menor nota registrada")
     print("0 - Finalizar programa")
     print("\n====================")
     # Solicita a opcao do usuario
@@ -158,6 +195,16 @@ while not encerrar:
         else:
             media_turma = calcular_media_turma(av1, av2, av3)
             print(f"\nMédia geral da turma: {media_turma:.2f}\n")
+
+    # Caso o usuario escolha a opcao 4, identifica a maior e a menor nota registrada
+    elif opcao == 4:
+        # VALIDAÇÃO: evita acessar av1[0] com a lista vazia
+        if len(alunos) == 0:
+            print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
+        else:
+            maior, menor, indice_maior, indice_menor = identificar_extremos(av1, av2, av3)
+            print(f"\nMaior nota registrada: {maior:.1f} - aluno {alunos[indice_maior]}")
+            print(f"Menor nota registrada: {menor:.1f} - aluno {alunos[indice_menor]}\n")
 
     # Caso o usuario escolha a opcao 0, o programa finaliza
     elif opcao == 0:
