@@ -11,6 +11,9 @@ av1 = []
 av2 = []
 av3 = []
 
+# Nota mínima para aprovação (evita espalhar o valor 7.0 pelo código)
+NOTA_APROVACAO = 7.0
+
 
 # ==============================================================================
 # FUNÇÕES DO SISTEMA
@@ -88,6 +91,15 @@ def exibir_listagem(alunos, av1, av2, av3):
     print(f"Total de alunos cadastrados: {len(alunos)}\n")
 
 
+# Função: calcular_media_aluno
+# Calcula a média aritmética das três notas de um aluno.
+# Pode ser reaproveitada nas etapas 3 e 6.
+# n1, n2, n3: Notas AV1, AV2 e AV3 do aluno.
+# Retorna: a média do aluno (float).
+def calcular_media_aluno(n1, n2, n3):
+    return (n1 + n2 + n3) / 3
+
+
 # Função: calcular_media_turma
 # Percorre os vetores de notas de forma iterativa (laço for) para calcular a
 # média de cada aluno e, a partir delas, a média geral da turma.
@@ -102,8 +114,8 @@ def calcular_media_turma(av1, av2, av3):
 
     # Laço for que percorre os vetores do índice 0 até o total de alunos cadastrados
     for i in range(len(av1)):
-        # Calcula a média do aluno somando as três notas e dividindo por 3
-        media_aluno = (av1[i] + av2[i] + av3[i]) / 3
+        # Reaproveita calcular_media_aluno para evitar repetir a mesma conta
+        media_aluno = calcular_media_aluno(av1[i], av2[i], av3[i])
         soma_medias += media_aluno
 
     # Calcula a média geral da turma dividindo a soma das médias pela quantidade de alunos
@@ -153,6 +165,33 @@ def identificar_extremos(av1, av2, av3):
     return maior, menor, indice_maior, indice_menor
 
 
+# Função: listar_aprovados
+# Percorre as listas de forma iterativa, exibe os alunos com média maior ou
+# igual a NOTA_APROVACAO e conta quantos foram aprovados.
+# alunos: Lista com os nomes.
+# av1, av2, av3: Listas com as notas.
+# Retorna: quantidade de alunos aprovados (int).
+def listar_aprovados(alunos, av1, av2, av3):
+    print("\n--- Alunos aprovados ---")
+
+    contador_aprovados = 0
+
+    # Laço for: percorre do índice 0 até o total de alunos cadastrados
+    for i in range(len(alunos)):
+        media_aluno = calcular_media_aluno(av1[i], av2[i], av3[i])
+
+        # >= para que média exatamente 7.0 também aprove
+        if media_aluno >= NOTA_APROVACAO:
+            print(f"{alunos[i]} - Média: {media_aluno:.1f}")
+            contador_aprovados += 1
+
+    # Se ninguém atingiu a média, informa no lugar da listagem vazia
+    if contador_aprovados == 0:
+        print("Nenhum aluno aprovado.")
+
+    return contador_aprovados
+
+
 # ==============================================================================
 # MENU PRINCIPAL
 # ==============================================================================
@@ -165,6 +204,7 @@ while not encerrar:
     print("2 - Exibir listagem geral de alunos e notas")
     print("3 - Calcular e exibir a média geral da turma")
     print("4 - Identificar a maior e a menor nota registrada")
+    print("5 - Contar e listar discentes aprovados")
     print("0 - Finalizar programa")
     print("\n====================")
     # Solicita a opcao do usuario
@@ -205,6 +245,15 @@ while not encerrar:
             maior, menor, indice_maior, indice_menor = identificar_extremos(av1, av2, av3)
             print(f"\nMaior nota registrada: {maior:.1f} - aluno {alunos[indice_maior]}")
             print(f"Menor nota registrada: {menor:.1f} - aluno {alunos[indice_menor]}\n")
+
+    # Caso o usuario escolha a opcao 5, lista e conta os alunos aprovados
+    elif opcao == 5:
+        # VALIDAÇÃO: Verifica se existem alunos cadastrados antes de listar
+        if len(alunos) == 0:
+            print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
+        else:
+            total_aprovados = listar_aprovados(alunos, av1, av2, av3)
+            print(f"Total de aprovados: {total_aprovados} de {len(alunos)} alunos\n")
 
     # Caso o usuario escolha a opcao 0, o programa finaliza
     elif opcao == 0:
