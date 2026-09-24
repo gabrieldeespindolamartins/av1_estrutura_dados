@@ -1,325 +1,392 @@
 # ==============================================================================
-# CABEÇALHO DO PROGRAMA
+# CONSTANTES E DEFINIÇÕES DO SISTEMA
 # ==============================================================================
-print("\n==============================================")
-print("Bem-vindo ao sistema de gerenciamento de notas")
-print("==============================================\n")
+MAX_ALUNOS = 100
+NOTA_APROVACAO = 7.0
 
-# Cria listas vazias para guardar as informações que serão adicionadas
+# ==============================================================================
+# VARIÁVEIS GLOBAIS (Listas paralelas para armazenar dados dos alunos)
+# ==============================================================================
 alunos = []
 av1 = []
 av2 = []
 av3 = []
-
-# Nota mínima para aprovação (evita espalhar o valor 7.0 pelo código)
-NOTA_APROVACAO = 7.0
 
 
 # ==============================================================================
 # FUNÇÕES DO SISTEMA
 # ==============================================================================
 
-# Função: ler_nota
-# Lê uma nota do teclado. Aceita apenas números (float) entre 0 e 10.
-# Rejeita texto/string e valores fora do intervalo.
-def ler_nota(mensagem):
+def eh_nome_valido(nome: str) -> bool:
+    """
+    Valida se a string contém apenas letras e espaços.
+    Retorna True se válida e possuir pelo menos uma letra.
+    """
+    letras = 0
+    for char in nome:
+        if char.isalpha():
+            letras += 1
+        elif not char.isspace():
+            return False  # Contém caracteres inválidos (números/símbolos)
+    return letras > 0
+
+
+def ler_nota(mensagem: str) -> float:
+    """
+    Lê uma nota do teclado. Aceita apenas float entre 0.0 e 10.0.
+    Rejeita texto/string e valores fora do intervalo.
+    """
     while True:
-        print(mensagem)
+        print(mensagem, end="")
         print("--------------------------")
+        entrada = input().strip()
+
         try:
-            nota = float(input(""))
+            nota = float(entrada)
             if 0.0 <= nota <= 10.0:
                 return nota
-            else:
-                print("\nInsira uma nota valida (entre 0 e 10)\n")
         except ValueError:
-            print("\nInsira uma nota valida (entre 0 e 10)\n")
+            pass
+
+        print("\nInsira uma nota valida (entre 0 e 10)\n")
 
 
-# Início da função responsável por todo o processo de cadastro de um aluno
 def cadastrar_aluno():
+    """Realiza todo o processo de cadastro de um aluno e suas 3 notas."""
+    if len(alunos) >= MAX_ALUNOS:
+        print(f"\nLimite maximo de alunos atingido ({MAX_ALUNOS})!\n")
+        return
+
     while True:
         print("=========================")
         print("Insira o nome do aluno: ")
         print("=========================")
-        nome = input("")
+        nome = input().strip()
 
-        # Faz aceitar apenas letras no nome
-        nome_sem_espaco = nome.strip().replace(" ", "")
-
-        if nome_sem_espaco != "" and nome_sem_espaco.isalpha():
+        if eh_nome_valido(nome):
             break
-        else:
-            print("======================")
-            print("Insira um nome valido")
-            print("======================")
 
-    # Pede as tres notas e guarda apenas numeros entre 0 e 10
+        print("======================")
+        print("Insira um nome valido")
+        print("======================")
+
+    # Solicita as três notas com validação
     nota_av1 = ler_nota("\nInsira a nota da av1: \n")
     nota_av2 = ler_nota("\nInsira a nota da av2: \n")
     nota_av3 = ler_nota("\nInsira a nota da av3: \n")
 
-    # Guarda as informações nas listas globais
+    # Guarda as informações nas listas paralelas
     alunos.append(nome)
     av1.append(nota_av1)
     av2.append(nota_av2)
     av3.append(nota_av3)
 
-    # Mensagem de confirmação mostrando o nome do aluno recém-cadastrado
     print(f"\nUsuario {nome} criado com sucesso!\n")
 
 
-# Função: exibir_listagem
-# Lista com os nomes dos alunos.
-# av1: Lista com as notas da Avaliação 1.
-# av2: Lista com as notas da Avaliação 2.
-# av3: Lista com as notas da Avaliação 3.
-def exibir_listagem(alunos, av1, av2, av3):
-    # VALIDAÇÃO: Verifica se existem alunos cadastrados antes de tentar iterar
-    if len(alunos) == 0:
+def exibir_listagem(alunos_list, av1_list, av2_list, av3_list):
+    """Exibe a listagem geral de alunos cadastrados e suas notas."""
+    total = len(alunos_list)
+    if total == 0:
         print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
         return
 
-    # Cabeçalho da listagem
     print("\n--- Listagem geral de alunos ---")
+    for i in range(total):
+        print(f"{i + 1} - {alunos_list[i]} | AV1: {av1_list[i]:.1f} | AV2: {av2_list[i]:.1f} | AV3: {av3_list[i]:.1f}")
 
-    # Laço for para percorrer os vetores/listas paralelas sincronizadas pelo índice
-    for i in range(len(alunos)):
-        print(f"{i + 1} - {alunos[i]} | AV1: {av1[i]:.1f} | AV2: {av2[i]:.1f} | AV3: {av3[i]:.1f}")
-
-    # Exibe o total de alunos cadastrados ao final do laço
-    print(f"Total de alunos cadastrados: {len(alunos)}\n")
+    print(f"Total de alunos cadastrados: {total}\n")
 
 
-# Função: calcular_media_aluno
-# Calcula a média aritmética das três notas de um aluno.
-# Pode ser reaproveitada nas etapas 3 e 6.
-# n1, n2, n3: Notas AV1, AV2 e AV3 do aluno.
-# Retorna: a média do aluno (float).
-def calcular_media_aluno(n1, n2, n3):
-    return (n1 + n2 + n3) / 3
+def calcular_media_aluno(n1: float, n2: float, n3: float) -> float:
+    """Calcula a média aritmética das três notas de um aluno."""
+    return (n1 + n2 + n3) / 3.0
 
 
-# Função: calcular_media_turma
-# Percorre os vetores de notas de forma iterativa (laço for) para calcular a
-# média de cada aluno e, a partir delas, a média geral da turma.
-# av1: Lista com as notas da Avaliação 1.
-# av2: Lista com as notas da Avaliação 2.
-# av3: Lista com as notas da Avaliação 3.
-# Retorna: a média geral da turma (float). Não faz print, apenas retorna o
-# valor, para que a função possa ser reaproveitada em outras partes do sistema.
-def calcular_media_turma(av1, av2, av3):
-    # Variável acumuladora que soma a média de cada aluno a cada volta do laço
-    soma_medias = 0
-
-    # Laço for que percorre os vetores do índice 0 até o total de alunos cadastrados
-    for i in range(len(av1)):
-        # Reaproveita calcular_media_aluno para evitar repetir a mesma conta
-        media_aluno = calcular_media_aluno(av1[i], av2[i], av3[i])
-        soma_medias += media_aluno
-
-    # Calcula a média geral da turma dividindo a soma das médias pela quantidade de alunos
-    media_turma = soma_medias / len(av1)
-    return media_turma
+def calcular_media_turma(av1_list, av2_list, av3_list) -> float:
+    """Calcula e retorna a média geral da turma."""
+    total = len(av1_list)
+    soma_medias = sum(calcular_media_aluno(av1_list[i], av2_list[i], av3_list[i]) for i in range(total))
+    return soma_medias / total
 
 
-# Função: identificar_extremos
-# Percorre de forma iterativa (laço for) todas as notas (AV1, AV2 e AV3) e
-# identifica a maior e a menor nota, junto com o índice do aluno de cada uma.
-# Em caso de empate, mantém o primeiro aluno encontrado (> e < estritos).
-# av1, av2, av3: Listas com as notas.
-# Retorna: maior, menor, indice_maior, indice_menor.
-def identificar_extremos(av1, av2, av3):
-    # Inicializa com a primeira nota cadastrada (não usar 0 ou 10)
-    maior = av1[0]
-    menor = av1[0]
+def identificar_extremos(av1_list, av2_list, av3_list):
+    """
+    Identifica a maior e a menor nota entre todas as avaliações e os alunos correspondentes.
+    Retorna tupla: (maior, menor, indice_maior, indice_menor)
+    """
+    maior = av1_list[0]
+    menor = av1_list[0]
     indice_maior = 0
     indice_menor = 0
 
-    # Laço for: percorre do índice 0 até o total de alunos cadastrados
-    for i in range(len(av1)):
-        # AV1
-        if av1[i] > maior:
-            maior = av1[i]
-            indice_maior = i
-        if av1[i] < menor:
-            menor = av1[i]
-            indice_menor = i
-
-        # AV2
-        if av2[i] > maior:
-            maior = av2[i]
-            indice_maior = i
-        if av2[i] < menor:
-            menor = av2[i]
-            indice_menor = i
-
-        # AV3
-        if av3[i] > maior:
-            maior = av3[i]
-            indice_maior = i
-        if av3[i] < menor:
-            menor = av3[i]
-            indice_menor = i
+    total = len(av1_list)
+    for i in range(total):
+        notas = [av1_list[i], av2_list[i], av3_list[i]]
+        for nota in notas:
+            if nota > maior:
+                maior = nota
+                indice_maior = i
+            if nota < menor:
+                menor = nota
+                indice_menor = i
 
     return maior, menor, indice_maior, indice_menor
 
 
-# Função: listar_aprovados
-# Percorre as listas de forma iterativa, exibe os alunos com média maior ou
-# igual a NOTA_APROVACAO e conta quantos foram aprovados.
-# alunos: Lista com os nomes.
-# av1, av2, av3: Listas com as notas.
-# Retorna: quantidade de alunos aprovados (int).
-def listar_aprovados(alunos, av1, av2, av3):
+def listar_aprovados(alunos_list, av1_list, av2_list, av3_list) -> int:
+    """Exibe os alunos aprovados (média >= 7.0) e retorna a quantidade total de aprovados."""
     print("\n--- Alunos aprovados ---")
-
     contador_aprovados = 0
+    total = len(alunos_list)
 
-    # Laço for: percorre do índice 0 até o total de alunos cadastrados
-    for i in range(len(alunos)):
-        media_aluno = calcular_media_aluno(av1[i], av2[i], av3[i])
-
-        # >= para que média exatamente 7.0 também aprove
+    for i in range(total):
+        media_aluno = calcular_media_aluno(av1_list[i], av2_list[i], av3_list[i])
         if media_aluno >= NOTA_APROVACAO:
-            print(f"{alunos[i]} - Média: {media_aluno:.1f}")
+            print(f"{alunos_list[i]} - Média: {media_aluno:.1f}")
             contador_aprovados += 1
 
-    # Se ninguém atingiu a média, informa no lugar da listagem vazia
     if contador_aprovados == 0:
         print("Nenhum aluno aprovado.")
 
     return contador_aprovados
 
 
-# Função: somar_medias_recursivo
-# Caso base: Se o tamanho (n) for igual a 0, retorna 0 (condição de parada).
-# Passo redutor: Retorna o cálculo da média do aluno atual (n-1) somado à chamada
-# da própria função para o tamanho reduzido (n-1).
-# Retorna: A soma de todas as médias (float). Função pura, sem loops ou prints.
-def somar_medias_recursivo(av1, av2, av3, n):
+# ==============================================================================
+# FUNÇÕES RECURSIVAS (ETAPA 6)
+# ==============================================================================
+
+def somar_medias_recursivo(av1_list, av2_list, av3_list, n: int) -> float:
+    """
+    Caso Base: Se n == 0, retorna 0.0 (condição de parada).
+    Passo Redutor: Média do aluno (n-1) + chamada recursiva com n-1.
+    """
     if n == 0:
-        return 0
-    else:
-        return calcular_media_aluno(av1[n-1], av2[n-1], av3[n-1]) + somar_medias_recursivo(av1, av2, av3, n - 1)
+        return 0.0
+    return calcular_media_aluno(av1_list[n - 1], av2_list[n - 1], av3_list[n - 1]) + somar_medias_recursivo(av1_list, av2_list, av3_list, n - 1)
 
 
-# Função: contar_aprovados_recursivo
-# Caso base: Se o tamanho (n) for igual a 0, retorna 0 (condição de parada).
-# Passo redutor: Calcula a média do aluno atual (n-1). Se aprovado, retorna 1 + a
-# chamada da própria função para (n-1). Caso contrário, retorna 0 + chamada para (n-1).
-# Retorna: A quantidade de alunos aprovados (int). Função pura, sem loops ou prints.
-def contar_aprovados_recursivo(av1, av2, av3, n):
+def contar_aprovados_recursivo(av1_list, av2_list, av3_list, n: int) -> int:
+    """
+    Caso Base: Se n == 0, retorna 0.
+    Passo Redutor: Verifica aprovação do aluno (n-1) + chamada recursiva com n-1.
+    """
     if n == 0:
         return 0
-    else:
-        media_aluno = calcular_media_aluno(av1[n-1], av2[n-1], av3[n-1])
-        if media_aluno >= NOTA_APROVACAO:
-            return 1 + contar_aprovados_recursivo(av1, av2, av3, n - 1)
-        else:
-            return 0 + contar_aprovados_recursivo(av1, av2, av3, n - 1)
+    media_aluno = calcular_media_aluno(av1_list[n - 1], av2_list[n - 1], av3_list[n - 1])
+    ponto = 1 if media_aluno >= NOTA_APROVACAO else 0
+    return ponto + contar_aprovados_recursivo(av1_list, av2_list, av3_list, n - 1)
 
 
 # ==============================================================================
-# MENU PRINCIPAL
+# ETAPA 7 – FUNCIONALIDADES EXTRAS E SUBMENU
 # ==============================================================================
-encerrar = False
 
-# Início do loop principal do menu, que fica repetindo até o usuário escolher encerrar o programa.
-while not encerrar:
-    # Exibe as opções do programa
-    print("1 - Cadastrar alunos e notas")
-    print("2 - Exibir listagem geral de alunos e notas")
-    print("3 - Calcular e exibir a média geral da turma")
-    print("4 - Identificar a maior e a menor nota registrada")
-    print("5 - Contar e listar discentes aprovados")
-    print("6 - Emitir estatísticas via funções recursivas") # Opção adicionada na Etapa 6
-    print("0 - Finalizar programa")
-    print("\n====================")
-    # Solicita a opcao do usuario
-    print("Selecione uma opcao: ")
-    print("====================\n")
+def buscar_aluno(alunos_list, nome_buscado: str) -> int:
+    """
+    Realiza uma busca sequencial pelo nome do aluno na lista.
+    Parâmetros:
+      - alunos_list: Lista com os nomes dos alunos.
+      - nome_buscado: Nome a ser pesquisado.
+    Retorna: O índice do aluno se encontrado, ou -1 caso contrário.
+    """
+    for i in range(len(alunos_list)):
+        if alunos_list[i] == nome_buscado:
+            return i
+    return -1
+
+
+def exibir_invertido(alunos_list, av1_list, av2_list, av3_list, n: int):
+    """
+    Exibe a listagem de alunos e suas notas em ordem inversa através de recursão.
     
-    try:
-        opcao = int(input(""))
-    except ValueError:
-        print("=================================================")
-        print("Erro de leitura: Digite um numero inteiro valido")
-        print("=================================================")
-        continue
+    Caso Base: Se n == 0, encerra a execução e apenas retorna.
+    Passo Redutor: Exibe o aluno da posição n - 1 e faz a chamada recursiva para n - 1.
+    """
+    # CASO BASE
+    if n == 0:
+        return
 
-    # Caso o usuario escolha a opcao 1, o programa levara a cadastrar aluno
-    if opcao == 1:
-        cadastrar_aluno()
+    # PASSO REDUTOR
+    print(f"{n} - {alunos_list[n - 1]} | AV1: {av1_list[n - 1]:.1f} | AV2: {av2_list[n - 1]:.1f} | AV3: {av3_list[n - 1]:.1f}")
+    
+    # Chamada recursiva
+    exibir_invertido(alunos_list, av1_list, av2_list, av3_list, n - 1)
 
-    # Caso o usuario escolha a opcao 2, o programa chama a função de listagem
-    elif opcao == 2:
-        exibir_listagem(alunos, av1, av2, av3)
 
-    # Caso o usuario escolha a opcao 3, o programa calcula e exibe a média geral da turma
-    elif opcao == 3:
-        # VALIDAÇÃO: Verifica se existem alunos cadastrados antes de calcular, evitando divisão por zero
-        if len(alunos) == 0:
-            print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
+def contar_acima_da_media(av1_list, av2_list, av3_list, media_turma: float) -> int:
+    """
+    Conta e retorna quantos alunos possuem média individual superior à média geral da turma.
+    """
+    contador = 0
+    for i in range(len(av1_list)):
+        media_aluno = calcular_media_aluno(av1_list[i], av2_list[i], av3_list[i])
+        if media_aluno > media_turma:
+            contador += 1
+    return contador
+
+
+def exibir_submenu_extras(alunos_list, av1_list, av2_list, av3_list):
+    """
+    Gerencia e exibe o submenu de funcionalidades extras do sistema.
+    Parâmetros:
+      - alunos_list, av1_list, av2_list, av3_list: Listas paralelas contendo dados e notas.
+    """
+    voltar = False
+
+    while not voltar:
+        print("1 - Buscar aluno pelo nome")
+        print("2 - Exibir listagem invertida (recursiva)")
+        print("3 - Estatisticas complementares")
+        print("0 - Voltar ao menu principal")
+        print("\n====================")
+        print("Selecione uma opcao: ")
+        print("====================\n")
+
+        entrada = input().strip()
+
+        try:
+            opcao = int(entrada)
+        except ValueError:
+            print("=================================================")
+            print("Erro de leitura: Digite um numero inteiro valido")
+            print("=================================================\n")
+            continue
+
+        quantidade = len(alunos_list)
+
+        # VALIDAÇÃO: Bloqueia as opções 1, 2 e 3 caso não existam alunos cadastrados
+        if 1 <= opcao <= 3 and quantidade == 0:
+            print("Nenhum aluno cadastrado. Utilize a opcao 1 do menu principal primeiro.\n")
+            continue
+
+        if opcao == 1:
+            print("Insira o nome do aluno:")
+            nome_buscado = input().strip()
+            indice = buscar_aluno(alunos_list, nome_buscado)
+
+            if indice != -1:
+                media = calcular_media_aluno(av1_list[indice], av2_list[indice], av3_list[indice])
+                print(f"{alunos_list[indice]} | AV1: {av1_list[indice]:.1f} | AV2: {av2_list[indice]:.1f} | AV3: {av3_list[indice]:.1f} | Média: {media:.1f}\n")
+            else:
+                print("Aluno nao encontrado.\n")
+
+        elif opcao == 2:
+            print("\n--- Listagem invertida ---")
+            exibir_invertido(alunos_list, av1_list, av2_list, av3_list, quantidade)
+            print()
+
+        elif opcao == 3:
+            media_turma = calcular_media_turma(av1_list, av2_list, av3_list)
+            total_aprovados = listar_aprovados(alunos_list, av1_list, av2_list, av3_list)
+            acima_media = contar_acima_da_media(av1_list, av2_list, av3_list, media_turma)
+            percentual = (total_aprovados / quantidade) * 100.0
+
+            print(f"\nAlunos acima da media da turma: {acima_media}")
+            print(f"Percentual de aprovacao: {percentual:.2f}%\n")
+
+        elif opcao == 0:
+            print("Voltando ao menu principal...\n")
+            voltar = True
+
         else:
-            media_turma = calcular_media_turma(av1, av2, av3)
-            print(f"\nMédia geral da turma: {media_turma:.2f}\n")
+            print("==============")
+            print("Opcao invalida")
+            print("==============\n")
 
-    # Caso o usuario escolha a opcao 4, identifica a maior e a menor nota registrada
-    elif opcao == 4:
-        # VALIDAÇÃO: evita acessar av1[0] com a lista vazia
-        if len(alunos) == 0:
-            print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
+
+# ==============================================================================
+# PROGRAMA PRINCIPAL
+# ==============================================================================
+def main():
+    encerrar = False
+
+    print("\n==============================================")
+    print("Bem-vindo ao sistema de gerenciamento de notas")
+    print("==============================================\n")
+
+    while not encerrar:
+        print("1 - Cadastrar alunos e notas")
+        print("2 - Exibir listagem geral de alunos e notas")
+        print("3 - Calcular e exibir a média geral da turma")
+        print("4 - Identificar a maior e a menor nota registrada")
+        print("5 - Contar e listar discentes aprovados")
+        print("6 - Emitir estatísticas via funções recursivas")
+        print("7 - Funcionalidades Extras - Submenu")
+        print("0 - Finalizar programa")
+        print("\n====================")
+        print("Selecione uma opcao: ")
+        print("====================\n")
+
+        entrada = input().strip()
+
+        try:
+            opcao = int(entrada)
+        except ValueError:
+            print("=================================================")
+            print("Erro de leitura: Digite um numero inteiro valido")
+            print("=================================================\n")
+            continue
+
+        if opcao == 1:
+            cadastrar_aluno()
+
+        elif opcao == 2:
+            exibir_listagem(alunos, av1, av2, av3)
+
+        elif opcao == 3:
+            if len(alunos) == 0:
+                print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
+            else:
+                media_turma = calcular_media_turma(av1, av2, av3)
+                print(f"\nMédia geral da turma: {media_turma:.2f}\n")
+
+        elif opcao == 4:
+            if len(alunos) == 0:
+                print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
+            else:
+                maior, menor, idx_maior, idx_menor = identificar_extremos(av1, av2, av3)
+                print(f"\nMaior nota registrada: {maior:.1f} - aluno {alunos[idx_maior]}")
+                print(f"Menor nota registrada: {menor:.1f} - aluno {alunos[idx_menor]}\n")
+
+        elif opcao == 5:
+            if len(alunos) == 0:
+                print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
+            else:
+                total_aprovados = listar_aprovados(alunos, av1, av2, av3)
+                print(f"Total de aprovados: {total_aprovados} de {len(alunos)} alunos\n")
+
+        elif opcao == 6:
+            quantidade = len(alunos)
+            if quantidade == 0:
+                print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
+            else:
+                soma_medias = somar_medias_recursivo(av1, av2, av3, quantidade)
+                total_aprovados = contar_aprovados_recursivo(av1, av2, av3, quantidade)
+
+                media_turma = soma_medias / quantidade
+                taxa_aprovacao = (total_aprovados / quantidade) * 100.0
+
+                print("\n--- Estatísticas (cálculo recursivo) ---")
+                print(f"Soma das médias: {soma_medias:.2f}")
+                print(f"Média geral da turma: {media_turma:.2f}")
+                print(f"Total de aprovados: {total_aprovados} de {quantidade}")
+                print(f"Taxa de aprovação: {taxa_aprovacao:.2f}%\n")
+
+        elif opcao == 7:
+            exibir_submenu_extras(alunos, av1, av2, av3)
+
+        elif opcao == 0:
+            print("\n=========================")
+            print("Finalizando o programa...")
+            print("=========================")
+            encerrar = True
+
         else:
-            maior, menor, indice_maior, indice_menor = identificar_extremos(av1, av2, av3)
-            print(f"\nMaior nota registrada: {maior:.1f} - aluno {alunos[indice_maior]}")
-            print(f"Menor nota registrada: {menor:.1f} - aluno {alunos[indice_menor]}\n")
+            print("==============")
+            print("Opcao invalida")
+            print("==============\n")
 
-    # Caso o usuario escolha a opcao 5, lista e conta os alunos aprovados
-    elif opcao == 5:
-        # VALIDAÇÃO: Verifica se existem alunos cadastrados antes de listar
-        if len(alunos) == 0:
-            print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
-        else:
-            total_aprovados = listar_aprovados(alunos, av1, av2, av3)
-            print(f"Total de aprovados: {total_aprovados} de {len(alunos)} alunos\n")
 
-    # Caso o usuario escolha a opcao 6, calcula as estatísticas utilizando recursividade
-    elif opcao == 6:
-        quantidade = len(alunos)
-        
-        # VALIDAÇÃO: Evita divisão por zero e recursões infinitas em listas vazias
-        if quantidade == 0:
-            print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
-        else:
-            # OBS: Em Python, o limite máximo natural de recursão é 1000 chamadas de pilha, 
-            # portanto, o tamanho de "quantidade" não deve ultrapassar esse limite.
-            
-            # Chamadas das funções recursivas recebendo o tamanho do vetor
-            soma_medias = somar_medias_recursivo(av1, av2, av3, quantidade)
-            total_aprovados = contar_aprovados_recursivo(av1, av2, av3, quantidade)
-
-            # Cálculos de turma
-            media_turma = soma_medias / quantidade
-            taxa_aprovacao = (total_aprovados / quantidade) * 100
-
-            # Exibição dos dados
-            print("\n--- Estatísticas (cálculo recursivo) ---")
-            print(f"Soma das médias: {soma_medias:.2f}")
-            print(f"Média geral da turma: {media_turma:.2f}")
-            print(f"Total de aprovados: {total_aprovados} de {quantidade}")
-            print(f"Taxa de aprovação: {taxa_aprovacao:.2f}%\n")
-
-    # Caso o usuario escolha a opcao 0, o programa finaliza
-    elif opcao == 0:
-        print("\n=========================")
-        print("Finalizando o programa...")
-        print("=========================")
-        encerrar = True
-        break
-
-    # Caso o usuario escolha uma opcao invalida, o programa exibe uma mensagem de erro
-    else:
-        print("==============")
-        print("Opcao invalida")
-        print("==============")
+if __name__ == "__main__":
+    main()
