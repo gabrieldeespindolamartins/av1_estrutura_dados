@@ -37,9 +37,6 @@ int eh_nome_valido(const char *nome) {
     return letras > 0; // Válido se possuir pelo menos uma letra
 }
 
-
-
-
 // Função: ler_nota
 // Lê uma nota do teclado. Aceita apenas números (float) entre 0 e 10.
 // Rejeita texto/string e valores fora do intervalo.
@@ -64,7 +61,6 @@ float ler_nota(const char *mensagem) {
     }
 }
 
-
 // Início da função responsável por todo o processo de cadastro de um aluno
 void cadastrar_aluno() {
     if (total_alunos >= MAX_ALUNOS) {
@@ -88,7 +84,6 @@ void cadastrar_aluno() {
             }
         }
 
-    
         printf("======================\n");
         printf("Insira um nome valido\n");
         printf("======================\n");
@@ -109,7 +104,6 @@ void cadastrar_aluno() {
     // Mensagem de confirmação mostrando o nome do aluno recém-cadastrado
     printf("\nUsuario %s criado com sucesso!\n\n", nome);
 }
-
 
 // Função: exibir_listagem
 // Lista com os nomes dos alunos.
@@ -135,93 +129,54 @@ void exibir_listagem(char alunos[][TAM_NOME], float av1[], float av2[], float av
     printf("Total de alunos cadastrados: %d\n\n", total);
 }
 
-
 // Função: calcular_media_aluno
 // Calcula a média aritmética das três notas de um aluno.
-// Pode ser reaproveitada nas etapas 3 e 6.
 // n1, n2, n3: Notas AV1, AV2 e AV3 do aluno.
 // Retorna: a média do aluno (float).
 float calcular_media_aluno(float n1, float n2, float n3) {
     return (n1 + n2 + n3) / 3.0f;
 }
 
-
 // Função: calcular_media_turma
-// Percorre os vetores de notas de forma iterativa (laço for) para calcular a
-// média de cada aluno e, a partir delas, a média geral da turma.
-// av1: Vetor com as notas da Avaliação 1.
-// av2: Vetor com as notas da Avaliação 2.
-// av3: Vetor com as notas da Avaliação 3.
-// Retorna: a média geral da turma (float). Não faz print, apenas retorna o
-// valor, para que a função possa ser reaproveitada em outras partes do sistema.
+// Percorre os vetores de notas de forma iterativa para calcular a média geral da turma.
+// av1, av2, av3: Vetores com as notas.
+// Retorna: a média geral da turma (float).
 float calcular_media_turma(float av1[], float av2[], float av3[], int total) {
-    // Variável acumuladora que soma a média de cada aluno a cada volta do laço
     float soma_medias = 0.0f;
 
-    // Laço for que percorre os vetores do índice 0 até o total de alunos cadastrados
     for (int i = 0; i < total; i++) {
-        // Reaproveita calcular_media_aluno para evitar repetir a mesma conta
         float media_aluno = calcular_media_aluno(av1[i], av2[i], av3[i]);
         soma_medias += media_aluno;
     }
 
-    // Calcula a média geral da turma dividindo a soma das médias pela quantidade de alunos
     float media_turma = soma_medias / total;
     return media_turma;
 }
 
-
 // Função: identificar_extremos
-// Percorre de forma iterativa (laço for) todas as notas (AV1, AV2 e AV3) e
-// identifica a maior e a menor nota, junto com o índice do aluno de cada uma.
-// Em caso de empate, mantém o primeiro aluno encontrado (> e < estritos).
+// Identifica a maior e a menor nota, junto com o índice do aluno de cada uma.
 // av1, av2, av3: Vetores com as notas.
 // Retorna via ponteiros: maior, menor, indice_maior, indice_menor.
 void identificar_extremos(float av1[], float av2[], float av3[], int total, float *maior, float *menor, int *indice_maior, int *indice_menor) {
-    // Inicializa com a primeira nota cadastrada (não usar 0 ou 10)
     *maior = av1[0];
     *menor = av1[0];
     *indice_maior = 0;
     *indice_menor = 0;
 
-    // Laço for: percorre do índice 0 até o total de alunos cadastrados
     for (int i = 0; i < total; i++) {
-        // AV1
-        if (av1[i] > *maior) {
-            *maior = av1[i];
-            *indice_maior = i;
-        }
-        if (av1[i] < *menor) {
-            *menor = av1[i];
-            *indice_menor = i;
-        }
+        if (av1[i] > *maior) { *maior = av1[i]; *indice_maior = i; }
+        if (av1[i] < *menor) { *menor = av1[i]; *indice_menor = i; }
 
-        // AV2
-        if (av2[i] > *maior) {
-            *maior = av2[i];
-            *indice_maior = i;
-        }
-        if (av2[i] < *menor) {
-            *menor = av2[i];
-            *indice_menor = i;
-        }
+        if (av2[i] > *maior) { *maior = av2[i]; *indice_maior = i; }
+        if (av2[i] < *menor) { *menor = av2[i]; *indice_menor = i; }
 
-        // AV3
-        if (av3[i] > *maior) {
-            *maior = av3[i];
-            *indice_maior = i;
-        }
-        if (av3[i] < *menor) {
-            *menor = av3[i];
-            *indice_menor = i;
-        }
+        if (av3[i] > *maior) { *maior = av3[i]; *indice_maior = i; }
+        if (av3[i] < *menor) { *menor = av3[i]; *indice_menor = i; }
     }
 }
 
-
 // Função: listar_aprovados
-// Percorre as listas de forma iterativa, exibe os alunos com média maior ou
-// igual a NOTA_APROVACAO e conta quantos foram aprovados.
+// Exibe os alunos com média >= NOTA_APROVACAO e conta quantos foram aprovados.
 // alunos: Matriz com os nomes.
 // av1, av2, av3: Vetores com as notas.
 // Retorna: quantidade de alunos aprovados (int).
@@ -230,18 +185,15 @@ int listar_aprovados(char alunos[][TAM_NOME], float av1[], float av2[], float av
 
     int contador_aprovados = 0;
 
-    // Laço for: percorre do índice 0 até o total de alunos cadastrados
     for (int i = 0; i < total; i++) {
         float media_aluno = calcular_media_aluno(av1[i], av2[i], av3[i]);
 
-        // >= para que média exatamente 7.0 também aprove
         if (media_aluno >= NOTA_APROVACAO) {
             printf("%s - Média: %.1f\n", alunos[i], media_aluno);
             contador_aprovados++;
         }
     }
 
-    // Se ninguém atingiu a média, informa no lugar da listagem vazia
     if (contador_aprovados == 0) {
         printf("Nenhum aluno aprovado.\n");
     }
@@ -255,10 +207,8 @@ int listar_aprovados(char alunos[][TAM_NOME], float av1[], float av2[], float av
 // ==============================================================================
 
 // Função: somar_medias_recursivo
-// Caso base: Se o tamanho (n) for igual a 0, retorna 0 (condição de parada).
-// Passo redutor: Retorna o cálculo da média do aluno atual (n-1) somado à chamada
-// da própria função para o tamanho reduzido (n-1).
-// Retorna: A soma de todas as médias (float). Função pura, sem loops ou prints.
+// Caso base: Se n == 0, retorna 0.
+// Passo redutor: Média do aluno (n-1) + chamada recursiva para (n-1).
 float somar_medias_recursivo(float av1[], float av2[], float av3[], int n) {
     if (n == 0) {
         return 0.0f;
@@ -267,12 +217,9 @@ float somar_medias_recursivo(float av1[], float av2[], float av3[], int n) {
     }
 }
 
-
 // Função: contar_aprovados_recursivo
-// Caso base: Se o tamanho (n) for igual a 0, retorna 0 (condição de parada).
-// Passo redutor: Calcula a média do aluno atual (n-1). Se aprovado, retorna 1 + a
-// chamada da própria função para (n-1). Caso contrário, retorna 0 + chamada para (n-1).
-// Retorna: A quantidade de alunos aprovados (int). Função pura, sem loops ou prints.
+// Caso base: Se n == 0, retorna 0.
+// Passo redutor: Verifica se o aluno (n-1) foi aprovado e soma à chamada recursiva para (n-1).
 int contar_aprovados_recursivo(float av1[], float av2[], float av3[], int n) {
     if (n == 0) {
         return 0;
@@ -282,6 +229,149 @@ int contar_aprovados_recursivo(float av1[], float av2[], float av3[], int n) {
             return 1 + contar_aprovados_recursivo(av1, av2, av3, n - 1);
         } else {
             return 0 + contar_aprovados_recursivo(av1, av2, av3, n - 1);
+        }
+    }
+}
+
+
+// ==============================================================================
+// ETAPA 7 – FUNCIONALIDADES EXTRAS E SUBMENU
+// ==============================================================================
+
+// Função: buscar_aluno
+// Realiza uma busca sequencial pelo nome do aluno no vetor de alunos.
+// alunos: Matriz com os nomes dos alunos.
+// quantidade: Quantidade atual de alunos cadastrados.
+// nome_buscado: Nome que se deseja procurar.
+// Retorna: O índice do aluno se encontrado, ou -1 caso contrário.
+int buscar_aluno(char alunos[][TAM_NOME], int quantidade, const char *nome_buscado) {
+    for (int i = 0; i < quantidade; i++) {
+        if (strcmp(alunos[i], nome_buscado) == 0) {
+            return i; // Retorna o índice imediatamente ao encontrar
+        }
+    }
+    return -1; // Retorna -1 se não for encontrado
+}
+
+// Função: exibir_invertido
+// Exibe a listagem de alunos e suas notas na ordem inversa de cadastro.
+// alunos, av1, av2, av3: Vetores contendo dados e notas dos alunos.
+// n: Tamanho atual/restante da lista a ser impressa.
+// Caso base: Se n == 0, apenas retorna (condição de parada).
+// Passo redutor: Exibe o aluno da posição n - 1 e realiza a chamada recursiva para n - 1.
+void exibir_invertido(char alunos[][TAM_NOME], float av1[], float av2[], float av3[], int n) {
+    // CASO BASE: Condição de parada
+    if (n == 0) {
+        return;
+    }
+
+    // PASSO REDUTOR: Exibe o aluno da posição n-1
+    printf("%d - %s | AV1: %.1f | AV2: %.1f | AV3: %.1f\n", n, alunos[n - 1], av1[n - 1], av2[n - 1], av3[n - 1]);
+
+    // Chamada recursiva para o elemento anterior
+    exibir_invertido(alunos, av1, av2, av3, n - 1);
+}
+
+// Função: contar_acima_da_media
+// Conta quantos alunos possuem média individual superior à média da turma.
+// av1, av2, av3: Vetores de notas dos alunos.
+// quantidade: Quantidade total de alunos.
+// media_turma: Média geral calculada para a turma.
+// Retorna: Quantidade de alunos acima da média.
+int contar_acima_da_media(float av1[], float av2[], float av3[], int quantidade, float media_turma) {
+    int contador = 0;
+    for (int i = 0; i < quantidade; i++) {
+        float media_aluno = calcular_media_aluno(av1[i], av2[i], av3[i]);
+        if (media_aluno > media_turma) {
+            contador++;
+        }
+    }
+    return contador;
+}
+
+// Função: exibir_submenu_extras
+// Gerencia e exibe o submenu de funcionalidades extras.
+// alunos: Matriz com os nomes dos alunos.
+// av1: Vetor com as notas da Avaliação 1.
+// av2: Vetor com as notas da Avaliação 2.
+// av3: Vetor com as notas da Avaliação 3.
+// quantidade: Total de alunos cadastrados (passado por valor).
+void exibir_submenu_extras(char alunos[][TAM_NOME], float av1[], float av2[], float av3[], int quantidade) {
+    int voltar = 0;
+    int opcao;
+
+    while (!voltar) {
+        printf("1 - Buscar aluno pelo nome\n");
+        printf("2 - Exibir listagem invertida (recursiva)\n");
+        printf("3 - Estatisticas complementares\n");
+        printf("0 - Voltar ao menu principal\n");
+        printf("\n====================\n");
+        printf("Selecione uma opcao: \n");
+        printf("====================\n\n");
+
+        if (scanf("%d", &opcao) != 1) {
+            printf("=================================================\n");
+            printf("Erro de leitura: Digite um numero inteiro valido\n");
+            printf("=================================================\n");
+            while (getchar() != '\n'); // Limpa o buffer de entrada
+            continue;
+        }
+
+        // Limpa a quebra de linha pendente após o scanf
+        while (getchar() != '\n');
+
+        // VALIDAÇÃO: Verifica se existem alunos antes de acessar as opções 1, 2 e 3
+        if ((opcao >= 1 && opcao <= 3) && quantidade == 0) {
+            printf("Nenhum aluno cadastrado. Utilize a opcao 1 do menu principal primeiro.\n\n");
+            continue;
+        }
+
+        switch (opcao) {
+            case 1: {
+                char nome_buscado[TAM_NOME];
+                printf("Insira o nome do aluno:\n");
+                if (fgets(nome_buscado, sizeof(nome_buscado), stdin) != NULL) {
+                    nome_buscado[strcspn(nome_buscado, "\n")] = '\0';
+                }
+
+                int indice = buscar_aluno(alunos, quantidade, nome_buscado);
+                if (indice != -1) {
+                    float media = calcular_media_aluno(av1[indice], av2[indice], av3[indice]);
+                    printf("%s | AV1: %.1f | AV2: %.1f | AV3: %.1f | Média: %.1f\n\n",
+                           alunos[indice], av1[indice], av2[indice], av3[indice], media);
+                } else {
+                    printf("Aluno nao encontrado.\n\n");
+                }
+                break;
+            }
+
+            case 2:
+                printf("\n--- Listagem invertida ---\n");
+                exibir_invertido(alunos, av1, av2, av3, quantidade);
+                printf("\n");
+                break;
+
+            case 3: {
+                float media_turma = calcular_media_turma(av1, av2, av3, quantidade);
+                int total_aprovados = listar_aprovados(alunos, av1, av2, av3, quantidade);
+                int acima_media = contar_acima_da_media(av1, av2, av3, quantidade, media_turma);
+                float percentual = ((float)total_aprovados / quantidade) * 100.0f;
+
+                printf("\nAlunos acima da media da turma: %d\n", acima_media);
+                printf("Percentual de aprovacao: %.2f%%\n\n", percentual);
+                break;
+            }
+
+            case 0:
+                printf("Voltando ao menu principal...\n\n");
+                voltar = 1;
+                break;
+
+            default:
+                printf("==============\n");
+                printf("Opcao invalida\n");
+                printf("==============\n\n");
+                break;
         }
     }
 }
@@ -309,6 +399,7 @@ int main() {
         printf("4 - Identificar a maior e a menor nota registrada\n");
         printf("5 - Contar e listar discentes aprovados\n");
         printf("6 - Emitir estatísticas via funções recursivas\n");
+        printf("7 - Funcionalidades Extras - Submenu\n");
         printf("0 - Finalizar programa\n");
         printf("\n====================\n");
         printf("Selecione uma opcao: \n");
@@ -337,7 +428,6 @@ int main() {
         }
         // Caso o usuario escolha a opcao 3
         else if (opcao == 3) {
-            // VALIDAÇÃO: Verifica se existem alunos cadastrados antes de calcular, evitando divisão por zero
             if (total_alunos == 0) {
                 printf("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n\n");
             } else {
@@ -347,7 +437,6 @@ int main() {
         }
         // Caso o usuario escolha a opcao 4
         else if (opcao == 4) {
-            // VALIDAÇÃO: evita acessar av1[0] com o vetor vazio
             if (total_alunos == 0) {
                 printf("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n\n");
             } else {
@@ -360,7 +449,6 @@ int main() {
         }
         // Caso o usuario escolha a opcao 5
         else if (opcao == 5) {
-            // VALIDAÇÃO: Verifica se existem alunos cadastrados antes de listar
             if (total_alunos == 0) {
                 printf("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n\n");
             } else {
@@ -372,25 +460,25 @@ int main() {
         else if (opcao == 6) {
             int quantidade = total_alunos;
 
-            // VALIDAÇÃO: Evita divisão por zero e estouro de pilha
             if (quantidade == 0) {
                 printf("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n\n");
             } else {
-                // Chamadas das funções recursivas passando a quantidade como valor inicial de n
                 float soma_medias = somar_medias_recursivo(av1, av2, av3, quantidade);
                 int total_aprovados = contar_aprovados_recursivo(av1, av2, av3, quantidade);
 
-                // Cálculos de turma com conversão explícita para float
                 float media_turma = soma_medias / quantidade;
                 float taxa_aprovacao = ((float)total_aprovados / quantidade) * 100.0f;
 
-                // Exibição dos dados
                 printf("\n--- Estatísticas (cálculo recursivo) ---\n");
                 printf("Soma das médias: %.2f\n", soma_medias);
                 printf("Média geral da turma: %.2f\n", media_turma);
                 printf("Total de aprovados: %d de %d\n", total_aprovados, quantidade);
                 printf("Taxa de aprovação: %.2f%%\n\n", taxa_aprovacao);
             }
+        }
+        // Caso o usuario escolha a opcao 7 (Submenu de Extras)
+        else if (opcao == 7) {
+            exibir_submenu_extras(alunos, av1, av2, av3, total_alunos);
         }
         // Caso o usuario escolha a opcao 0
         else if (opcao == 0) {
