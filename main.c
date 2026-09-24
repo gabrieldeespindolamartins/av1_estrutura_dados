@@ -4,60 +4,57 @@
 #include <ctype.h>
 
 // ==============================================================================
-// CONSTANTES E VARIÁVEIS GLOBAIS
+// CONSTANTES E DEFINIÇÕES DO SISTEMA
 // ==============================================================================
 #define MAX_ALUNOS 100
+#define TAM_NOME 100
 #define NOTA_APROVACAO 7.0
 
-// Vetores paralelos para armazenar as informações
-char alunos[MAX_ALUNOS][100];
+// ==============================================================================
+// VARIÁVEIS GLOBAIS (Equivalentes às listas em Python)
+// ==============================================================================
+char alunos[MAX_ALUNOS][TAM_NOME];
 float av1[MAX_ALUNOS];
 float av2[MAX_ALUNOS];
 float av3[MAX_ALUNOS];
-
-// Contador do total de alunos cadastrados
-int total_alunos = 0;
-
-
-// ==============================================================================
-// FUNÇÕES AUXILIARES DE VALIDAÇÃO
-// ==============================================================================
-
-// Valida se o nome contém apenas letras e espaços, e se não está vazio
-int validar_nome(const char *nome) {
-    int tem_letra = 0;
-    for (int i = 0; nome[i] != '\0'; i++) {
-        if (isalpha((unsigned char)nome[i])) {
-            tem_letra = 1;
-        } else if (nome[i] != ' ' && nome[i] != '\n' && nome[i] != '\r') {
-            return 0; // Contém números ou símbolos inválidos
-        }
-    }
-    return tem_letra; // Retorna 1 se tiver pelo menos uma letra válida
-}
+int total_alunos = 0; // Controla a quantidade atual de alunos cadastrados
 
 
 // ==============================================================================
 // FUNÇÕES DO SISTEMA
 // ==============================================================================
 
+// Função auxiliar: valida se a string contém apenas letras e espaços
+int eh_nome_valido(const char *nome) {
+    int letras = 0;
+    for (int i = 0; nome[i] != '\0'; i++) {
+        if (isalpha((unsigned char)nome[i])) {
+            letras++;
+        } else if (!isspace((unsigned char)nome[i])) {
+            return 0; // Contém caracteres inválidos (números/símbolos)
+        }
+    }
+    return letras > 0; // Válido se possuir pelo menos uma letra
+}
+
+
+
+
 // Função: ler_nota
 // Lê uma nota do teclado. Aceita apenas números (float) entre 0 e 10.
 // Rejeita texto/string e valores fora do intervalo.
-float ler_nota(const char *mensagem) {
-    float nota;
+float ler_nota(const char *mensagem) {    
     char buffer[100];
+    float nota;
 
     while (1) {
         printf("%s", mensagem);
         printf("--------------------------\n");
 
         if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
-            char *endptr;
-            nota = strtof(buffer, &endptr);
-
-            // Verifica se a conversão foi válida e se a nota está no intervalo [0.0, 10.0]
-            if (endptr != buffer && (*endptr == '\n' || *endptr == '\0')) {
+            char extra;
+            // Valida se foi digitado um float válido e nada além dele
+            if (sscanf(buffer, "%f %c", &nota, &extra) == 1) {
                 if (nota >= 0.0f && nota <= 10.0f) {
                     return nota;
                 }
@@ -75,7 +72,7 @@ void cadastrar_aluno() {
         return;
     }
 
-    char nome[100];
+    char nome[TAM_NOME];
 
     while (1) {
         printf("=========================\n");
@@ -83,14 +80,15 @@ void cadastrar_aluno() {
         printf("=========================\n");
 
         if (fgets(nome, sizeof(nome), stdin) != NULL) {
-            // Remove a quebra de linha tratada pelo fgets
-            nome[strcspn(nome, "\r\n")] = '\0';
+            // Remove o caractere de nova linha (\n) do final da string
+            nome[strcspn(nome, "\n")] = '\0';
 
-            if (validar_nome(nome)) {
+            if (eh_nome_valido(nome)) {
                 break;
             }
         }
 
+    
         printf("======================\n");
         printf("Insira um nome valido\n");
         printf("======================\n");
@@ -114,10 +112,13 @@ void cadastrar_aluno() {
 
 
 // Função: exibir_listagem
-// Lista com os nomes dos alunos e suas respectivas notas.
-void exibir_listagem(char alunos_list[][100], float av1_list[], float av2_list[], float av3_list[], int quantidade) {
+// Lista com os nomes dos alunos.
+// av1: Vetor com as notas da Avaliação 1.
+// av2: Vetor com as notas da Avaliação 2.
+// av3: Vetor com as notas da Avaliação 3.
+void exibir_listagem(char alunos[][TAM_NOME], float av1[], float av2[], float av3[], int total) {
     // VALIDAÇÃO: Verifica se existem alunos cadastrados antes de tentar iterar
-    if (quantidade == 0) {
+    if (total == 0) {
         printf("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n\n");
         return;
     }
@@ -126,17 +127,20 @@ void exibir_listagem(char alunos_list[][100], float av1_list[], float av2_list[]
     printf("\n--- Listagem geral de alunos ---\n");
 
     // Laço for para percorrer os vetores paralelos sincronizados pelo índice
-    for (int i = 0; i < quantidade; i++) {
-        printf("%d - %s | AV1: %.1f | AV2: %.1f | AV3: %.1f\n", i + 1, alunos_list[i], av1_list[i], av2_list[i], av3_list[i]);
+    for (int i = 0; i < total; i++) {
+        printf("%d - %s | AV1: %.1f | AV2: %.1f | AV3: %.1f\n", i + 1, alunos[i], av1[i], av2[i], av3[i]);
     }
 
     // Exibe o total de alunos cadastrados ao final do laço
-    printf("Total de alunos cadastrados: %d\n\n", quantidade);
+    printf("Total de alunos cadastrados: %d\n\n", total);
 }
 
 
 // Função: calcular_media_aluno
 // Calcula a média aritmética das três notas de um aluno.
+// Pode ser reaproveitada nas etapas 3 e 6.
+// n1, n2, n3: Notas AV1, AV2 e AV3 do aluno.
+// Retorna: a média do aluno (float).
 float calcular_media_aluno(float n1, float n2, float n3) {
     return (n1 + n2 + n3) / 3.0f;
 }
@@ -145,15 +149,24 @@ float calcular_media_aluno(float n1, float n2, float n3) {
 // Função: calcular_media_turma
 // Percorre os vetores de notas de forma iterativa (laço for) para calcular a
 // média de cada aluno e, a partir delas, a média geral da turma.
-float calcular_media_turma(float av1_list[], float av2_list[], float av3_list[], int quantidade) {
-    float soma_medias = 0;
+// av1: Vetor com as notas da Avaliação 1.
+// av2: Vetor com as notas da Avaliação 2.
+// av3: Vetor com as notas da Avaliação 3.
+// Retorna: a média geral da turma (float). Não faz print, apenas retorna o
+// valor, para que a função possa ser reaproveitada em outras partes do sistema.
+float calcular_media_turma(float av1[], float av2[], float av3[], int total) {
+    // Variável acumuladora que soma a média de cada aluno a cada volta do laço
+    float soma_medias = 0.0f;
 
-    for (int i = 0; i < quantidade; i++) {
-        float media_aluno = calcular_media_aluno(av1_list[i], av2_list[i], av3_list[i]);
+    // Laço for que percorre os vetores do índice 0 até o total de alunos cadastrados
+    for (int i = 0; i < total; i++) {
+        // Reaproveita calcular_media_aluno para evitar repetir a mesma conta
+        float media_aluno = calcular_media_aluno(av1[i], av2[i], av3[i]);
         soma_medias += media_aluno;
     }
 
-    float media_turma = soma_medias / quantidade;
+    // Calcula a média geral da turma dividindo a soma das médias pela quantidade de alunos
+    float media_turma = soma_medias / total;
     return media_turma;
 }
 
@@ -161,40 +174,45 @@ float calcular_media_turma(float av1_list[], float av2_list[], float av3_list[],
 // Função: identificar_extremos
 // Percorre de forma iterativa (laço for) todas as notas (AV1, AV2 e AV3) e
 // identifica a maior e a menor nota, junto com o índice do aluno de cada uma.
-void identificar_extremos(float av1_list[], float av2_list[], float av3_list[], int quantidade, float *maior, float *menor, int *indice_maior, int *indice_menor) {
-    *maior = av1_list[0];
-    *menor = av1_list[0];
+// Em caso de empate, mantém o primeiro aluno encontrado (> e < estritos).
+// av1, av2, av3: Vetores com as notas.
+// Retorna via ponteiros: maior, menor, indice_maior, indice_menor.
+void identificar_extremos(float av1[], float av2[], float av3[], int total, float *maior, float *menor, int *indice_maior, int *indice_menor) {
+    // Inicializa com a primeira nota cadastrada (não usar 0 ou 10)
+    *maior = av1[0];
+    *menor = av1[0];
     *indice_maior = 0;
     *indice_menor = 0;
 
-    for (int i = 0; i < quantidade; i++) {
+    // Laço for: percorre do índice 0 até o total de alunos cadastrados
+    for (int i = 0; i < total; i++) {
         // AV1
-        if (av1_list[i] > *maior) {
-            *maior = av1_list[i];
+        if (av1[i] > *maior) {
+            *maior = av1[i];
             *indice_maior = i;
         }
-        if (av1_list[i] < *menor) {
-            *menor = av1_list[i];
+        if (av1[i] < *menor) {
+            *menor = av1[i];
             *indice_menor = i;
         }
 
         // AV2
-        if (av2_list[i] > *maior) {
-            *maior = av2_list[i];
+        if (av2[i] > *maior) {
+            *maior = av2[i];
             *indice_maior = i;
         }
-        if (av2_list[i] < *menor) {
-            *menor = av2_list[i];
+        if (av2[i] < *menor) {
+            *menor = av2[i];
             *indice_menor = i;
         }
 
         // AV3
-        if (av3_list[i] > *maior) {
-            *maior = av3_list[i];
+        if (av3[i] > *maior) {
+            *maior = av3[i];
             *indice_maior = i;
         }
-        if (av3_list[i] < *menor) {
-            *menor = av3_list[i];
+        if (av3[i] < *menor) {
+            *menor = av3[i];
             *indice_menor = i;
         }
     }
@@ -204,20 +222,26 @@ void identificar_extremos(float av1_list[], float av2_list[], float av3_list[], 
 // Função: listar_aprovados
 // Percorre as listas de forma iterativa, exibe os alunos com média maior ou
 // igual a NOTA_APROVACAO e conta quantos foram aprovados.
-int listar_aprovados(char alunos_list[][100], float av1_list[], float av2_list[], float av3_list[], int quantidade) {
+// alunos: Matriz com os nomes.
+// av1, av2, av3: Vetores com as notas.
+// Retorna: quantidade de alunos aprovados (int).
+int listar_aprovados(char alunos[][TAM_NOME], float av1[], float av2[], float av3[], int total) {
     printf("\n--- Alunos aprovados ---\n");
 
     int contador_aprovados = 0;
 
-    for (int i = 0; i < quantidade; i++) {
-        float media_aluno = calcular_media_aluno(av1_list[i], av2_list[i], av3_list[i]);
+    // Laço for: percorre do índice 0 até o total de alunos cadastrados
+    for (int i = 0; i < total; i++) {
+        float media_aluno = calcular_media_aluno(av1[i], av2[i], av3[i]);
 
+        // >= para que média exatamente 7.0 também aprove
         if (media_aluno >= NOTA_APROVACAO) {
-            printf("%s - Média: %.1f\n", alunos_list[i], media_aluno);
+            printf("%s - Média: %.1f\n", alunos[i], media_aluno);
             contador_aprovados++;
         }
     }
 
+    // Se ninguém atingiu a média, informa no lugar da listagem vazia
     if (contador_aprovados == 0) {
         printf("Nenhum aluno aprovado.\n");
     }
@@ -235,11 +259,11 @@ int listar_aprovados(char alunos_list[][100], float av1_list[], float av2_list[]
 // Passo redutor: Retorna o cálculo da média do aluno atual (n-1) somado à chamada
 // da própria função para o tamanho reduzido (n-1).
 // Retorna: A soma de todas as médias (float). Função pura, sem loops ou prints.
-float somar_medias_recursivo(float av1_list[], float av2_list[], float av3_list[], int n) {
+float somar_medias_recursivo(float av1[], float av2[], float av3[], int n) {
     if (n == 0) {
         return 0.0f;
     } else {
-        return calcular_media_aluno(av1_list[n - 1], av2_list[n - 1], av3_list[n - 1]) + somar_medias_recursivo(av1_list, av2_list, av3_list, n - 1);
+        return calcular_media_aluno(av1[n-1], av2[n-1], av3[n-1]) + somar_medias_recursivo(av1, av2, av3, n - 1);
     }
 }
 
@@ -249,33 +273,34 @@ float somar_medias_recursivo(float av1_list[], float av2_list[], float av3_list[
 // Passo redutor: Calcula a média do aluno atual (n-1). Se aprovado, retorna 1 + a
 // chamada da própria função para (n-1). Caso contrário, retorna 0 + chamada para (n-1).
 // Retorna: A quantidade de alunos aprovados (int). Função pura, sem loops ou prints.
-int contar_aprovados_recursivo(float av1_list[], float av2_list[], float av3_list[], int n) {
+int contar_aprovados_recursivo(float av1[], float av2[], float av3[], int n) {
     if (n == 0) {
         return 0;
     } else {
-        float media_aluno = calcular_media_aluno(av1_list[n - 1], av2_list[n - 1], av3_list[n - 1]);
+        float media_aluno = calcular_media_aluno(av1[n-1], av2[n-1], av3[n-1]);
         if (media_aluno >= NOTA_APROVACAO) {
-            return 1 + contar_aprovados_recursivo(av1_list, av2_list, av3_list, n - 1);
+            return 1 + contar_aprovados_recursivo(av1, av2, av3, n - 1);
         } else {
-            return 0 + contar_aprovados_recursivo(av1_list, av2_list, av3_list, n - 1);
+            return 0 + contar_aprovados_recursivo(av1, av2, av3, n - 1);
         }
     }
 }
 
 
 // ==============================================================================
-// MENU PRINCIPAL
+// PROGRAMA PRINCIPAL
 // ==============================================================================
 int main() {
     int encerrar = 0;
+    char buffer_opcao[100];
     int opcao;
-    char buffer[100];
 
-    // Cabeçalho inicial do programa
+    // Cabeçalho do programa
     printf("\n==============================================\n");
     printf("Bem-vindo ao sistema de gerenciamento de notas\n");
     printf("==============================================\n\n");
 
+    // Início do loop principal do menu
     while (!encerrar) {
         // Exibe as opções do programa
         printf("1 - Cadastrar alunos e notas\n");
@@ -289,31 +314,30 @@ int main() {
         printf("Selecione uma opcao: \n");
         printf("====================\n\n");
 
-        if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+        if (fgets(buffer_opcao, sizeof(buffer_opcao), stdin) == NULL) {
             continue;
         }
 
-        char *endptr;
-        opcao = (int)strtol(buffer, &endptr, 10);
-
-        // Trata erro de digitação de opções não numéricas
-        if (endptr == buffer || (*endptr != '\n' && *endptr != '\0')) {
+        char extra;
+        // Validação da opção do menu para rejeitar entradas inválidas
+        if (sscanf(buffer_opcao, "%d %c", &opcao, &extra) != 1) {
             printf("=================================================\n");
             printf("Erro de leitura: Digite um numero inteiro valido\n");
             printf("=================================================\n");
             continue;
         }
 
-        // Opção 1: Cadastrar alunos e notas
+        // Caso o usuario escolha a opcao 1
         if (opcao == 1) {
             cadastrar_aluno();
         }
-        // Opção 2: Listagem geral
+        // Caso o usuario escolha a opcao 2
         else if (opcao == 2) {
             exibir_listagem(alunos, av1, av2, av3, total_alunos);
         }
-        // Opção 3: Média geral da turma
+        // Caso o usuario escolha a opcao 3
         else if (opcao == 3) {
+            // VALIDAÇÃO: Verifica se existem alunos cadastrados antes de calcular, evitando divisão por zero
             if (total_alunos == 0) {
                 printf("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n\n");
             } else {
@@ -321,8 +345,9 @@ int main() {
                 printf("\nMédia geral da turma: %.2f\n\n", media_turma);
             }
         }
-        // Opção 4: Extremos (Maior e Menor nota)
+        // Caso o usuario escolha a opcao 4
         else if (opcao == 4) {
+            // VALIDAÇÃO: evita acessar av1[0] com o vetor vazio
             if (total_alunos == 0) {
                 printf("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n\n");
             } else {
@@ -333,29 +358,33 @@ int main() {
                 printf("Menor nota registrada: %.1f - aluno %s\n\n", menor, alunos[indice_menor]);
             }
         }
-        // Opção 5: Listar e contar aprovados
+        // Caso o usuario escolha a opcao 5
         else if (opcao == 5) {
+            // VALIDAÇÃO: Verifica se existem alunos cadastrados antes de listar
             if (total_alunos == 0) {
                 printf("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n\n");
             } else {
-                int aprovados = listar_aprovados(alunos, av1, av2, av3, total_alunos);
-                printf("Total de aprovados: %d de %d alunos\n\n", aprovados, total_alunos);
+                int total_aprovados = listar_aprovados(alunos, av1, av2, av3, total_alunos);
+                printf("Total de aprovados: %d de %d alunos\n\n", total_aprovados, total_alunos);
             }
         }
-        // Opção 6: Estatísticas via funções recursivas
+        // Caso o usuario escolha a opcao 6
         else if (opcao == 6) {
             int quantidade = total_alunos;
 
-            // VALIDAÇÃO: evita divisão por zero
+            // VALIDAÇÃO: Evita divisão por zero e estouro de pilha
             if (quantidade == 0) {
                 printf("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n\n");
             } else {
+                // Chamadas das funções recursivas passando a quantidade como valor inicial de n
                 float soma_medias = somar_medias_recursivo(av1, av2, av3, quantidade);
                 int total_aprovados = contar_aprovados_recursivo(av1, av2, av3, quantidade);
 
+                // Cálculos de turma com conversão explícita para float
                 float media_turma = soma_medias / quantidade;
                 float taxa_aprovacao = ((float)total_aprovados / quantidade) * 100.0f;
 
+                // Exibição dos dados
                 printf("\n--- Estatísticas (cálculo recursivo) ---\n");
                 printf("Soma das médias: %.2f\n", soma_medias);
                 printf("Média geral da turma: %.2f\n", media_turma);
@@ -363,7 +392,7 @@ int main() {
                 printf("Taxa de aprovação: %.2f%%\n\n", taxa_aprovacao);
             }
         }
-        // Opção 0: Encerrar programa
+        // Caso o usuario escolha a opcao 0
         else if (opcao == 0) {
             printf("\n=========================\n");
             printf("Finalizando o programa...\n");
@@ -371,7 +400,7 @@ int main() {
             encerrar = 1;
             break;
         }
-        // Opção inválida
+        // Caso o usuario escolha uma opcao invalida
         else {
             printf("==============\n");
             printf("Opcao invalida\n");
