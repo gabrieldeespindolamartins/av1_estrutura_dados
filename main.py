@@ -192,6 +192,34 @@ def listar_aprovados(alunos, av1, av2, av3):
     return contador_aprovados
 
 
+# Função: somar_medias_recursivo
+# Caso base: Se o tamanho (n) for igual a 0, retorna 0 (condição de parada).
+# Passo redutor: Retorna o cálculo da média do aluno atual (n-1) somado à chamada
+# da própria função para o tamanho reduzido (n-1).
+# Retorna: A soma de todas as médias (float). Função pura, sem loops ou prints.
+def somar_medias_recursivo(av1, av2, av3, n):
+    if n == 0:
+        return 0
+    else:
+        return calcular_media_aluno(av1[n-1], av2[n-1], av3[n-1]) + somar_medias_recursivo(av1, av2, av3, n - 1)
+
+
+# Função: contar_aprovados_recursivo
+# Caso base: Se o tamanho (n) for igual a 0, retorna 0 (condição de parada).
+# Passo redutor: Calcula a média do aluno atual (n-1). Se aprovado, retorna 1 + a
+# chamada da própria função para (n-1). Caso contrário, retorna 0 + chamada para (n-1).
+# Retorna: A quantidade de alunos aprovados (int). Função pura, sem loops ou prints.
+def contar_aprovados_recursivo(av1, av2, av3, n):
+    if n == 0:
+        return 0
+    else:
+        media_aluno = calcular_media_aluno(av1[n-1], av2[n-1], av3[n-1])
+        if media_aluno >= NOTA_APROVACAO:
+            return 1 + contar_aprovados_recursivo(av1, av2, av3, n - 1)
+        else:
+            return 0 + contar_aprovados_recursivo(av1, av2, av3, n - 1)
+
+
 # ==============================================================================
 # MENU PRINCIPAL
 # ==============================================================================
@@ -205,6 +233,7 @@ while not encerrar:
     print("3 - Calcular e exibir a média geral da turma")
     print("4 - Identificar a maior e a menor nota registrada")
     print("5 - Contar e listar discentes aprovados")
+    print("6 - Emitir estatísticas via funções recursivas") # Opção adicionada na Etapa 6
     print("0 - Finalizar programa")
     print("\n====================")
     # Solicita a opcao do usuario
@@ -254,6 +283,32 @@ while not encerrar:
         else:
             total_aprovados = listar_aprovados(alunos, av1, av2, av3)
             print(f"Total de aprovados: {total_aprovados} de {len(alunos)} alunos\n")
+
+    # Caso o usuario escolha a opcao 6, calcula as estatísticas utilizando recursividade
+    elif opcao == 6:
+        quantidade = len(alunos)
+        
+        # VALIDAÇÃO: Evita divisão por zero e recursões infinitas em listas vazias
+        if quantidade == 0:
+            print("\nNenhum aluno cadastrado. Utilize a opção 1 primeiro.\n")
+        else:
+            # OBS: Em Python, o limite máximo natural de recursão é 1000 chamadas de pilha, 
+            # portanto, o tamanho de "quantidade" não deve ultrapassar esse limite.
+            
+            # Chamadas das funções recursivas recebendo o tamanho do vetor
+            soma_medias = somar_medias_recursivo(av1, av2, av3, quantidade)
+            total_aprovados = contar_aprovados_recursivo(av1, av2, av3, quantidade)
+
+            # Cálculos de turma
+            media_turma = soma_medias / quantidade
+            taxa_aprovacao = (total_aprovados / quantidade) * 100
+
+            # Exibição dos dados
+            print("\n--- Estatísticas (cálculo recursivo) ---")
+            print(f"Soma das médias: {soma_medias:.2f}")
+            print(f"Média geral da turma: {media_turma:.2f}")
+            print(f"Total de aprovados: {total_aprovados} de {quantidade}")
+            print(f"Taxa de aprovação: {taxa_aprovacao:.2f}%\n")
 
     # Caso o usuario escolha a opcao 0, o programa finaliza
     elif opcao == 0:
